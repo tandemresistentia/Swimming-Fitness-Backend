@@ -25,6 +25,7 @@ SECRET_KEY = str(os.getenv('SECRET_KEY'))
 DEBUG = False
 
 ALLOWED_HOSTS = [
+    'https://swimming-fitness-backend-production.up.railway.app/',
     'http://localhost:3000',
     'https://127.0.0.1',
 ]
