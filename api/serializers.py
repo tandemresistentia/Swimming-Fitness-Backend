@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile,Challenge,LogTraining
+from .models import Profile,Challenge,LogTraining,Contact
 
 from accounts.models import CustomUser
 class ProfileSerializer(serializers.ModelSerializer):
@@ -36,3 +36,8 @@ class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = ['id','challenge_type', 'description', 'status', 'username']
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['name', 'email', 'message']

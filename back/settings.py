@@ -9,7 +9,9 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import os
 
+ENVIRONMENT = 'production'
 from pathlib import Path
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,7 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+
+
 
 ALLOWED_HOSTS = [
     'swimming-fitness-backend-production.up.railway.app',
@@ -61,6 +64,11 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
+DJANGO_REST_AUTH = {
+    # Other settings...
+    'REGISTER_EMAIL_TEMPLATE': 'registration_email.html',
+}
+
 REST_FRAMEWORK = { # new
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
@@ -88,7 +96,7 @@ ROOT_URLCONF = 'back.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [],  # Add the path to your 'templates' folder here
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -96,12 +104,11 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                "django.template.context_processors.request",
+                'django.template.context_processors.request',
             ],
         },
     },
 ]
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend" # new
 SITE_ID = 1 # new
 
 
@@ -110,17 +117,26 @@ WSGI_APPLICATION = 'back.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD':str(os.getenv('PGPASSWORD')),
-        'HOST': 'containers-us-west-18.railway.app',
-        'PORT': '6768',
+if ENVIRONMENT == 'production':
+    DEBUG = False
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'railway',
+            'USER': 'postgres',
+            'PASSWORD':str(os.getenv('PGPASSWORD')),
+            'HOST': 'containers-us-west-18.railway.app',
+            'PORT': '6768',
+        }
     }
-}
+else:
+    DEBUG = True
+    DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "mydatabase",
+        }
+    }
 
 
 # Password validation
@@ -174,3 +190,14 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+from .constants import EMAIL_HOST_PASSWORD
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtppro.zoho.eu'
+EMAIL_USE_SSL = True
+EMAIL_PORT = 465
+
+EMAIL_HOST_USER = 'support@valoriado.com'
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
+DEFAULT_FROM_EMAIL = 'support@valoriado.com'

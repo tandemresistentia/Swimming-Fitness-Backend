@@ -1,9 +1,29 @@
 from rest_framework import generics,viewsets,permissions
 from .models import Profile,LogTraining, Challenge
-from .serializers import ProfileSerializer,LogTrainingSerializer, ChallengeSerializer
+from .serializers import ProfileSerializer,LogTrainingSerializer, ChallengeSerializer,ContactSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.core.mail import send_mail
+from django.conf import settings
+from rest_framework.permissions import AllowAny
+from dj_rest_auth.registration.views import RegisterView
+from django.conf import settings
+
+class CustomRegisterView(RegisterView):
+    def perform_create(self, serializer):
+        user = serializer.save(self.request)
+        # Perform any additional actions here (e.g., log the registration, update user profile, etc.)
+
+        # Send the registration email
+        subject = 'Welcome to Swimtrack'
+        message = 'Thank you for registering. Welcome to our platform!'
+        from_email = settings.EMAIL_HOST_USER
+        recipient_list = [user.email]
+        
+
+        send_mail(subject, message, from_email, recipient_list)
+
 
 
 class ProfileAPIView(generics.RetrieveUpdateAPIView):
@@ -59,3 +79,27 @@ class ChallengeViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ContactFormView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, format=None):
+        serializer = ContactSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+
+            # Send email
+            name = serializer.validated_data['name']
+            email = serializer.validated_data['email']
+            message = serializer.validated_data['message']
+
+            subject = 'New Contact Form Submission'
+            email_message = f"Name: {name}\nEmail: {email}\nMessage: {message}"
+            recipient_list = ['luismvg41@gmail.com']
+
+            send_mail(subject, email_message, settings.DEFAULT_FROM_EMAIL, recipient_list)
+
+            return Response({'success': True, 'message': 'Form submitted successfully.'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

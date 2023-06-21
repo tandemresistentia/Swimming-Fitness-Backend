@@ -12,6 +12,7 @@ django-cors-headers = "*"
 djangorestframework = "*"
 pillow = "*"
 psycopg2 = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
