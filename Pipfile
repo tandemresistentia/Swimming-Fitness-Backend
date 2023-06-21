@@ -11,6 +11,7 @@ django-allauth = "*"
 django-cors-headers = "*"
 djangorestframework = "*"
 pillow = "*"
+psycopg2 = "*"
 
 [dev-packages]
 
